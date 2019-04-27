@@ -84,7 +84,7 @@ class Login extends React.Component {
   }
 
   goToRegister = () => {
-    Actions.reset("SignUp")
+    Actions.SignUp()
   }
 
   render() {
@@ -131,9 +131,14 @@ class Login extends React.Component {
               </Button>
             </View>
           </Form>
-          <Left></Left>
-            <Text onPress={() => this.goToRegister()}>Register</Text>
-          <Right></Right>
+
+          <Spacer size={10} />
+
+          <View padder>
+            <Button block onPress={this.goToRegister} disabled={loading}>
+                <Text>Register</Text>
+            </Button>
+          </View>
         </Content>
       </Container>
     );

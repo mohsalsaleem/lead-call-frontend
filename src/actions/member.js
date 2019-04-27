@@ -1,43 +1,72 @@
 import { errorMessages } from '../constants/messages';
+import { AsyncStorage } from 'react-native';
 import { Firebase, FirebaseRef } from '../lib/firebase';
+import axios from 'axios';
 
 /**
   * Sign Up to Firebase
   */
 export function signUp(formData) {
   const {
-    email, password, password2, firstName, lastName,
+    name,
+    email,
+    businessName,
+    mobileNumber,
+    bizAlias,
+    password,
+    password2
   } = formData;
 
   return () => new Promise(async (resolve, reject) => {
     // Validation rules
-    if (!firstName) return reject({ message: errorMessages.missingFirstName });
-    if (!lastName) return reject({ message: errorMessages.missingLastName });
+    if (!name) return reject({ message: errorMessages.missingLastName });
     if (!email) return reject({ message: errorMessages.missingEmail });
+    if (!businessName) return reject({ message: errorMessages.missingBusinessName})
+    if (!bizAlias) return reject({ message: errorMessages.missingBusinessAlias})
+    if (!mobileNumber) return reject({ message: errorMessages.missingMobileNumber})
     if (!password) return reject({ message: errorMessages.missingPassword });
     if (!password2) return reject({ message: errorMessages.missingPassword });
     if (password !== password2) return reject({ message: errorMessages.passwordsDontMatch });
 
-    // Go to Firebase
-    return Firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then((res) => {
-        // Send user details to Firebase database
-        if (res && res.user.uid) {
-          FirebaseRef.child(`users/${res.user.uid}`).set({
-            firstName,
-            lastName,
-            signedUp: Firebase.database.ServerValue.TIMESTAMP,
-            lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
-          }).then(resolve);
-        }
-      }).catch(reject);
-  }).catch((err) => { throw err.message; });
+    console.log('Onboarding User')
+    console.log({
+      biz_alias: bizAlias,
+      biz_name: businessName,
+      email_id: email,
+      mobile_number: mobileNumber,
+      name: name,
+      password: password
+    })
+    fetch('10.1.122.181:5000/user/onboarding',{
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        biz_alias: bizAlias,
+        biz_name: businessName,
+        email_id: email,
+        mobile_number: mobileNumber,
+        name: name,
+        password : password
+      }),
+    }).then((res) => {
+                 console.log(res)
+                 if (res && res.user_id) {
+                   //AsyncStorage.setItem('user_id', res.user_id)
+                   console.log('Created User ' + res.user_id)
+                 }
+               }).catch(reject)
+    }).catch((err) => { console.log(err.message) });
 }
 
 /**
   * Get this User's Details
   */
+ /*
 function getUserData(dispatch) {
+  console.log(1)
   const UID = (
     FirebaseRef
     && Firebase
@@ -58,6 +87,7 @@ function getUserData(dispatch) {
 }
 
 export function getMemberData() {
+  console.log(2)
   if (Firebase === null) return () => new Promise(resolve => resolve());
 
   // Ensure token is up to date
@@ -75,7 +105,9 @@ export function getMemberData() {
 /**
   * Login to Firebase with Email/Password
   */
+ /*
 export function login(formData) {
+  console.log(3)
   const { email, password } = formData;
 
   return dispatch => new Promise(async (resolve, reject) => {
@@ -94,7 +126,9 @@ export function login(formData) {
 /**
   * Reset Password
   */
+ /*
 export function resetPassword(formData) {
+  console.log(4)
   const { email } = formData;
 
   return dispatch => new Promise(async (resolve, reject) => {
@@ -111,7 +145,9 @@ export function resetPassword(formData) {
 /**
   * Update Profile
   */
+ /*
 export function updateProfile(formData) {
+  console.log(5)
   const {
     email, password, password2, firstName, lastName, changeEmail, changePassword,
   } = formData;
@@ -155,8 +191,11 @@ export function updateProfile(formData) {
 /**
   * Logout
   */
+ /*
 export function logout() {
+  console.log(6)
   return dispatch => new Promise((resolve, reject) => Firebase.auth().signOut()
     .then(() => resolve(dispatch({ type: 'USER_RESET' })))
     .catch(reject)).catch((err) => { throw err.message; });
 }
+*/

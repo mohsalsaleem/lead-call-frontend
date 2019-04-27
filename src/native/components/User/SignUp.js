@@ -22,9 +22,11 @@ class SignUp extends React.Component {
   }
 
   state = {
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
+    businessName: '',
+    mobileNumber: '',
+    bizAlias: '',
     password: '',
     password2: '',
   }
@@ -41,7 +43,7 @@ class SignUp extends React.Component {
   handleSubmit = () => {
     const { onFormSubmit } = this.props;
     onFormSubmit(this.state)
-      .then(() => setTimeout(() => { Actions.pop(); Actions.login(); }, 1000))
+      .then(() => setTimeout(() => { Actions.pop(); Actions.home(); }, 1000))
       .catch(() => {});
   }
 
@@ -61,18 +63,34 @@ class SignUp extends React.Component {
 
           <Form>
             <Item stackedLabel>
-              <Label>First Name</Label>
+              <Label>Name</Label>
               <Input
                 disabled={loading}
-                onChangeText={v => this.handleChange('firstName', v)}
+                onChangeText={v => this.handleChange('name', v)}
               />
             </Item>
 
             <Item stackedLabel>
-              <Label>Last Name</Label>
+              <Label>Business Name</Label>
               <Input
                 disabled={loading}
-                onChangeText={v => this.handleChange('lastName', v)}
+                onChangeText={v => this.handleChange('businessName', v)}
+              />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>Business Alias</Label>
+              <Input
+                disabled={loading}
+                onChangeText={v => this.handleChange('bizAlias', v)}
+              />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>Mobile Number</Label>
+              <Input
+                disabled={loading}
+                onChangeText={v => this.handleChange('mobileNumber', v)}
               />
             </Item>
 
