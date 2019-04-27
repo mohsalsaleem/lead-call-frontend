@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { AppState, Alert, Modal,TouchableHighlight } from 'react-native';
 import {
-	Container, Text, CardItem, Card, Right, Icon, View, H1, Fab, Button
+	Container, Text, CardItem, Card, Right, Icon, View, H2, Fab, Button, Content
 } from 'native-base';
 import Header from '../UI/Header';
 import { DocumentPicker } from 'expo';
@@ -18,29 +18,33 @@ class CampaignUploadModal extends Component {
       animationType="slide"
       transparent={false}
       onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
+        this.props.ClosedModal()
       }}>
-        <View style={{marginTop: 22}}>
-          <View>
-			<Spacer size={20}/>
-            <Text>Hello World!</Text>
-            <Button
-              onPress={() => {
-                DocumentPicker.getDocumentAsync({
-                  type: '*/*'
-                }).then(response => {
-                  /*
-                    response contains name, size, type, uri
-                    if type is 
-                  */
-                  if (type === 'success') {
-                    this.props.ClosedModal()
-                  }
-                }).catch(err => {console.log(err)})
-              }}>
-              <Text>Select File</Text>
-            </Button>
-          </View>
+        <View style={{
+          flex: 1,
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'}}>
+            <Container style={{ paddingTop: 100, paddingLeft: '10%', paddingRight: '10%' }}>
+              <Content padder>
+  		          <Spacer size={20}/>
+                <H2>Upload a Campaign's Leads</H2>
+                <Spacer size={20}/>
+                <Button
+                  onPress={() => {
+                    DocumentPicker.getDocumentAsync({
+                      type: '*/*'
+                    }).then(response => {
+                      console.log(response)
+                      if (type === 'success') {
+                        this.props.ClosedModal()
+                      }
+                    }).catch(err => {console.log(err)})
+                  }}>
+                  <Text>Select File</Text>
+                </Button>
+            </Content>
+        </Container>
         </View>
       </Modal>)
   }
@@ -106,7 +110,7 @@ class Campaigns extends Component {
         style={{ backgroundColor: '#5067FF' }}
         position="bottomRight"
         onPress={() => this.setState({ uploadModal: !this.state.uploadModal })}>
-          <Icon name="cloudupload" />
+          <Icon name="ios-cloud-upload" />
       </Fab>
     )
   }
@@ -127,7 +131,7 @@ class Campaigns extends Component {
 				{ this.renderUploadFAB() }
 			</View>
 
-			{ this.state.uploadModal ? <CampaignUploadModal ClosedModal={() => {this.setState({uploadModal: true})}}/> : null }
+			{ this.state.uploadModal ? <CampaignUploadModal ClosedModal={() => {this.setState({uploadModal: false})}}/> : null }
 		</Container>)
 		}
 	}
