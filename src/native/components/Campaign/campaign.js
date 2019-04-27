@@ -6,6 +6,7 @@ import {
 import Header from '../UI/Header';
 import { DocumentPicker } from 'expo';
 import Spacer from '../UI/Spacer';
+import { Actions } from 'react-native-router-flux';
 
 class CampaignUploadModal extends Component {
   constructor(props) {
@@ -52,7 +53,7 @@ class Campaigns extends Component {
     appState: AppState.currentState,
     uploadModal: false,
     campaigns: [{
-      id: 1234567,
+      id: 'e2438a1d-ff6e-4ab6-a380-bd320c91c095',
       name: 'asdfghj'
     }, {
       id: 1234562,
@@ -69,7 +70,7 @@ class Campaigns extends Component {
     }, {
       id: 1234566,
       name: 'asdfghj'
-    }]
+	}]
 	};
 	
 	constructor(props) {
@@ -85,7 +86,9 @@ class Campaigns extends Component {
         <Card key={campaign.id}>
           <CardItem padder>
             <View padder>
-              <Text>{campaign.name}</Text>
+              <Text onPress={ () => {
+				Actions.leads( { campaign_id: campaign.id } )
+			  }}>{campaign.name}</Text>
             </View>
             <Right>
               <Icon/>

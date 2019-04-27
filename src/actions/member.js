@@ -64,7 +64,7 @@ export function signUp(formData) {
 /**
   * Get this User's Details
   */
- /*
+
 function getUserData(dispatch) {
   console.log(1)
   const UID = (
@@ -105,7 +105,6 @@ export function getMemberData() {
 /**
   * Login to Firebase with Email/Password
   */
- /*
 export function login(formData) {
   console.log(3)
   const { email, password } = formData;
@@ -126,7 +125,7 @@ export function login(formData) {
 /**
   * Reset Password
   */
- /*
+
 export function resetPassword(formData) {
   console.log(4)
   const { email } = formData;
@@ -145,7 +144,6 @@ export function resetPassword(formData) {
 /**
   * Update Profile
   */
- /*
 export function updateProfile(formData) {
   console.log(5)
   const {
@@ -191,11 +189,9 @@ export function updateProfile(formData) {
 /**
   * Logout
   */
- /*
 export function logout() {
   console.log(6)
   return dispatch => new Promise((resolve, reject) => Firebase.auth().signOut()
     .then(() => resolve(dispatch({ type: 'USER_RESET' })))
     .catch(reject)).catch((err) => { throw err.message; });
 }
-*/
