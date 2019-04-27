@@ -26,10 +26,27 @@ import ProfileComponent from '../components/User/Profile';
 
 // import AboutComponent from '../components/About';
 import Leads from '../components/Leads/Leads';
+import SignUp from '../components/User/SignUp';
 
 const Index = (
   <Stack hideNavBar>
     <Scene hideNavBar>
+      <Scene 
+          key="Authentication"
+          back={true}
+          title={AppConfig.appName.toUpperCase()}
+          icon={() => <Icon name="planet" {...DefaultProps.icons} />}
+          {...DefaultProps.navbarProps}
+          component={LoginContainer}
+          Layout={LoginComponent}/>
+      <Scene
+          key="SignUp"
+          back={true}
+          title={AppConfig.appName.toUpperCase()}
+          icon={() => <Icon name="planet" {...DefaultProps.icons} />}
+          {...DefaultProps.navbarProps}
+          component={SignUpContainer}
+          Layout={SignUpComponent}/>
       <Stack
           key="home"
           title={AppConfig.appName.toUpperCase()}
@@ -38,7 +55,7 @@ const Index = (
         >
           <Scene key="home" component={Leads} />
         </Stack>
-    </Scene>
+      </Scene>
   </Stack>
 );
 

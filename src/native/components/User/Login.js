@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {AsyncStorage} from 'react-native';
 import {
   Container, Content, Form, Item, Label, Input, Text, Button, View,
 } from 'native-base';
@@ -7,6 +8,9 @@ import { Actions } from 'react-native-router-flux';
 import Messages from '../UI/Messages';
 import Header from '../UI/Header';
 import Spacer from '../UI/Spacer';
+import { isNull } from 'util';
+import console from 'console';
+
 
 class Login extends React.Component {
   static propTypes = {
@@ -30,10 +34,20 @@ class Login extends React.Component {
     this.state = {
       email: (props.member && props.member.email) ? props.member.email : '',
       password: '',
+      loggedIn: false
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount = () => { 
+    console.log('Verifying Auth')
+    AsyncStorage.getItem('loggedIn').then(response => {
+      if (response === true) {
+        Actions.replace('SignUp')
+      }
+    })
   }
 
   handleChange = (name, val) => this.setState({ [name]: val })
