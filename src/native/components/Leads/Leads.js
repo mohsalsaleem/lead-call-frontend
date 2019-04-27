@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { StyleSheet, Platform, Linking, AppState, Alert, Modal,TouchableHighlight } from 'react-native';
 import {
-  Container, Content, Text, H1, H2, H3, View, Button, DeckSwiper
+  Container, Content, Text, H1, H2, H3, View, Button, DeckSwiper, Item, Picker, Textarea, Spacer
 } from 'native-base';
 import { AsyncStorage } from 'react-native'
 import { connect } from 'react-redux';
 
 import Lead from './Lead'
+import FeedBackModal from './FeedbackModal'
 
 const styles = StyleSheet.create({
   container: {
@@ -25,6 +26,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 50,
     backgroundColor: "transparent"
+  },
+  modalTitle: {
+    justifyContent: 'center'
   }
 });
 
@@ -32,7 +36,7 @@ let leads = []
 for (let i = 0; i < 10; i++) {
   lead = {
     name: 'Vishwanath ' + i,
-    phone: '+91950011210',
+    phone: '+9195001121' + i,
     interestScore: 10.4,
     qanda: [
       {
@@ -71,7 +75,9 @@ class Leads extends Component {
   state = {
     appState: AppState.currentState,
     modalVisible: false,
-    modalContent: undefined
+    modalContent: undefined,
+    leadFeedbackInterest: "not_selected",
+    leadFeedbackComment: ""
   };
 
   constructor(props) {
@@ -86,31 +92,6 @@ class Leads extends Component {
     AppState.removeEventListener('change', this._handleAppStateChange);
   }
 
-  swipeLeft = () => {
-    this._deckSwiper._root.swipeLeft()
-  }
-
-  showLastDialledLeadForm = async () => {
-    const value = await AsyncStorage.getItem('lastDialledLead')
-    const data = JSON.parse(value)
-
-    this.setState({
-      modalVisible: true,
-      modalContent: data
-    })
-  }
-
-  clearLastDialledLead = async() => {
-    await AsyncStorage.removeItem('lastDialledLead')
-  }
-
-  hideModal = () => {
-    this.clearLastDialledLead()
-    this.setState({
-      modalVisible: false
-    })
-  }
-
   _handleAppStateChange = (nextAppState) => {
     const component = this;
     if (
@@ -122,32 +103,105 @@ class Leads extends Component {
     this.setState({appState: nextAppState});
   };
 
+  swipeLeft = () => {
+    this._deckSwiper._root.swipeLeft()
+  }
+
+  showLastDialledLeadForm = async () => {
+    const value = await AsyncStorage.getItem('lastDialledLead')
+    const data = JSON.parse(value)
+
+    this.setState({
+      modalVisible: data !== null,
+      modalContent: data
+    })
+  }
+
+  clearLastDialledLead = async() => {
+    await AsyncStorage.removeItem('lastDialledLead')
+  }
+
+  hideModal = () => {
+
+    const feedBack = {
+      user: this.state.modalContent,
+      interestLevel: this.state.leadFeedbackInterest,
+      comment: this.state.leadFeedbackComment
+    }
+
+    console.log({feedBack})
+
+    this.clearLastDialledLead()
+    this.setState({
+      modalVisible: false
+    })
+  }
+
+  leadFeedbackInterestChange = (value) => {
+    this.setState({
+      leadFeedbackInterest: value
+    })
+  }
+
+  onEnterComment = (text) => {
+    this.setState({
+      leadFeedbackComment: text
+    })
+  }
+
   render () {
     return (
       <Container style={styles.container}>
         <View>
-          <Modal
+          {
+            this.state.modalContent ? 
+            <Modal
             animationType="slide"
             transparent={false}
             visible={this.state.modalVisible}
             >
-            <Container padder>
-              {
-                this.state.modalContent ? 
-                <Content>
-                  <Text>Provide feedback about</Text>
-                  <H1>{this.state.modalContent.name}</H1>
-                  <Text>{this.state.modalContent.phone}</Text>
-                  <Button onPress={() => {
-                    this.hideModal();
-                  }}>
-                    <Text>Done</Text>
-                  </Button>
-                </Content> : null
-              }
-            </Container>
-          </Modal>
-
+              <Container style={{ paddingTop: 100, paddingLeft: '10%', paddingRight: '10%' }}>
+                  <Content padder>
+                      <Text style={{ marginBottom: 10 }}>Provide feedback about your recent call with</Text>
+                      <H1>{this.state.modalContent.name}</H1>
+                      <Text style={{ marginBottom: 10 }}>{this.state.modalContent.phone}</Text>
+                      <Item picker style={{ marginBottom: 10 }}>
+                        <Picker
+                          mode="dropdown"
+                          style={{ width: '100%' }}
+                          placeholder="Rate user's interest"
+                          placeholderStyle={{ color: "#bfc6ea" }}
+                          placeholderIconColor="#007aff"
+                          selectedValue={this.state.leadFeedbackInterest}
+                          onValueChange={this.leadFeedbackInterestChange.bind(this)}
+                        >
+                          <Picker.Item label="Select Lead's Interest Level" value="not_selected" />
+                          <Picker.Item label="Very Interested" value="very_interested" />
+                          <Picker.Item label="Interested" value="interested" />
+                          <Picker.Item label="Not Interested" value="not_interested" />
+                        </Picker>
+                      </Item>
+                      <Textarea 
+                        rowSpan={5} 
+                        bordered 
+                        placeholder="Comments" 
+                        style={{ marginBottom: 10, padding: 10 }}
+                        onChangeText={(text) => {
+                          this.onEnterComment(text)
+                        }}
+                        />
+                      <Button 
+                        block 
+                        onPress={ () => {
+                          this.hideModal()
+                        }}
+                        >
+                          <Text>Done</Text>
+                      </Button>
+                  </Content>
+              </Container>
+            </Modal> : null
+          }
           <DeckSwiper
             ref={ (c) => this._deckSwiper = c }
             dataSource={leads}
