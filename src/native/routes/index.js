@@ -26,12 +26,12 @@ import ProfileComponent from '../components/User/Profile';
 
 // import AboutComponent from '../components/About';
 import Leads from '../components/Leads/Leads';
-import SignUp from '../components/User/SignUp';
+import Campaigns from '../components/Campaign/campaign';
 
 const Index = (
   <Stack hideNavBar>
-    <Scene 
-        key="Authentication"
+    <Scene
+        key="login"
         back={true}
         title={AppConfig.appName.toUpperCase()}
         icon={() => <Icon name="planet" {...DefaultProps.icons} />}
@@ -52,7 +52,8 @@ const Index = (
         icon={() => <Icon name="planet" {...DefaultProps.icons} />}
         {...DefaultProps.navbarProps}
       >
-        <Scene key="home" component={Leads} />
+        <Scene key="campaigns" component={Campaigns}/>
+        <Scene key="leads" component={Leads} />
       </Stack>
   </Stack>
 );
