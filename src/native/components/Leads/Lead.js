@@ -33,6 +33,11 @@ const openDialer = (data) => {
 }
 
 class Lead extends Component {
+
+    componentDidMount() {
+        console.log('asdasd');
+    }
+
     render() {
 
         const { data, onSwipeLeft } = this.props

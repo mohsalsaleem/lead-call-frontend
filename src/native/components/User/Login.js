@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { AsyncStorage } from 'react-native'
 import {
-  Container, Content, Form, Item, Label, Input, Text, Button, View
+  Container, Content, Form, Item, Label, Input, Text, Button, View, Left, Right
 } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import Messages from '../UI/Messages';
@@ -42,7 +42,7 @@ class Login extends React.Component {
     console.log('Verifying auth')
     AsyncStorage.getItem('loggedIn').then(response => {
       if (response === "true") {
-        Actions.replace('home')
+        Actions.push('home')
       }
     })
   }
@@ -81,6 +81,10 @@ class Login extends React.Component {
         Actions.replace('home')
       })
       .catch(() => {});
+  }
+
+  goToRegister = () => {
+    Actions.reset("SignUp")
   }
 
   render() {
@@ -127,6 +131,9 @@ class Login extends React.Component {
               </Button>
             </View>
           </Form>
+          <Left></Left>
+            <Text onPress={() => this.goToRegister()}>Register</Text>
+          <Right></Right>
         </Content>
       </Container>
     );

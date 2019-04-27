@@ -30,32 +30,30 @@ import SignUp from '../components/User/SignUp';
 
 const Index = (
   <Stack hideNavBar>
-    <Scene hideNavBar>
-      <Scene 
-          key="Authentication"
-          back={true}
-          title={AppConfig.appName.toUpperCase()}
-          icon={() => <Icon name="planet" {...DefaultProps.icons} />}
-          {...DefaultProps.navbarProps}
-          component={LoginContainer}
-          Layout={LoginComponent}/>
-      <Scene
-          key="SignUp"
-          back={true}
-          title={AppConfig.appName.toUpperCase()}
-          icon={() => <Icon name="planet" {...DefaultProps.icons} />}
-          {...DefaultProps.navbarProps}
-          component={SignUpContainer}
-          Layout={SignUpComponent}/>
-      <Stack
-          key="home"
-          title={AppConfig.appName.toUpperCase()}
-          icon={() => <Icon name="planet" {...DefaultProps.icons} />}
-          {...DefaultProps.navbarProps}
-        >
-          <Scene key="home" component={Leads} />
-        </Stack>
-      </Scene>
+    <Scene 
+        key="Authentication"
+        back={true}
+        title={AppConfig.appName.toUpperCase()}
+        icon={() => <Icon name="planet" {...DefaultProps.icons} />}
+        {...DefaultProps.navbarProps}
+        component={LoginContainer}
+        Layout={LoginComponent}/>
+    <Scene
+        key="SignUp"
+        back={true}
+        title={AppConfig.appName.toUpperCase()}
+        icon={() => <Icon name="planet" {...DefaultProps.icons} />}
+        {...DefaultProps.navbarProps}
+        component={SignUpContainer}
+        Layout={SignUpComponent}/>
+    <Stack
+        key="home"
+        title={AppConfig.appName.toUpperCase()}
+        icon={() => <Icon name="planet" {...DefaultProps.icons} />}
+        {...DefaultProps.navbarProps}
+      >
+        <Scene key="home" component={Leads} />
+      </Stack>
   </Stack>
 );
 
