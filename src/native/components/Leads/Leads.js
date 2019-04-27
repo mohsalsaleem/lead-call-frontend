@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Platform, Button } from 'react-native';
+import { StyleSheet, Platform, Button, Linking } from 'react-native';
 import {
-  Container, Content, Text, H1, H2, H3,
+  Container, Content, Text, H1, H2, H3, View, DeckSwiper
 } from 'native-base';
-import Swiper from 'react-native-deck-swiper';
+
+import Lead from './Lead'
 
 const styles = StyleSheet.create({
   container: {
@@ -27,28 +28,65 @@ const styles = StyleSheet.create({
 
 let leads = []
 for (let i = 0; i < 10; i++) {
-  leads.push('Hello ' + i)
+  lead = {
+    name: 'Vishwanath ' + i,
+    phone: '+91950011210',
+    interestScore: 10.4,
+    qanda: [
+      {
+        question: 'Who is the President of India?',
+        answer: 'Modi Ji'
+      },
+      {
+        question: 'Who is the President of India?',
+        answer: 'Modi Ji'
+      },
+      {
+        question: 'Who is the President of India?',
+        answer: 'Modi Ji'
+      },
+      {
+        question: 'Who is the President of India?',
+        answer: 'Modi Ji'
+      }
+    ]
+  }
+  leads.push(lead)
 }
 
-const Leads = () => (
-  <View style={styles.container}>
-        <Swiper
-            useViewOverflow={Platform.OS === 'ios'}
-            cards={leads}
-            renderCard={(card) => {
-                return (
-                    <View style={styles.card}>
-                        <Text style={styles.text}>{card}</Text>
-                    </View>
-                )
-            }}
-            onSwiped={(cardIndex) => {console.log(cardIndex)}}
-            onSwipedAll={() => {console.log('onSwipedAll')}}
-            cardIndex={0}
-            backgroundColor={'#4FD0E9'}
-            stackSize= {3}>
-        </Swiper>
-    </View>
-);
+const onSwipeLeft = (data) => {
+  console.log({ data })
+}
+
+const onSwipeRight = (data) => {
+  Linking.openURL(`tel:${data.phone}`)
+}
+
+class Leads extends Component {
+
+  constructor(props) {
+    super(props)
+  }
+
+  swipeLeft = () => {
+    this._deckSwiper._root.swipeLeft()
+  }
+
+  render () {
+    return (
+      <Container style={styles.container}>
+        <View>
+          <DeckSwiper
+            ref={ (c) => this._deckSwiper = c }
+            dataSource={leads}
+            renderItem={ item => <Lead data={item} onSwipeLeft={() => this.swipeLeft()} /> }
+            onSwipeLeft={onSwipeLeft}
+            onSwipeRight={onSwipeRight}
+          />
+        </View>
+      </Container>
+    )
+  }
+}
 
 export default Leads;
