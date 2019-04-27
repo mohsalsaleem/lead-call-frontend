@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {AsyncStorage} from 'react-native';
+import { AsyncStorage } from 'react-native'
 import {
-  Container, Content, Form, Item, Label, Input, Text, Button, View,
+  Container, Content, Form, Item, Label, Input, Text, Button, View
 } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import Messages from '../UI/Messages';
 import Header from '../UI/Header';
 import Spacer from '../UI/Spacer';
-import { isNull } from 'util';
-import console from 'console';
-
 
 class Login extends React.Component {
   static propTypes = {
@@ -41,22 +38,48 @@ class Login extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  componentDidMount = () => { 
-    console.log('Verifying Auth')
+  componentDidMount = () => {
+    console.log('Verifying auth')
     AsyncStorage.getItem('loggedIn').then(response => {
-      if (response === true) {
-        Actions.replace('SignUp')
+      if (response === "true") {
+        Actions.replace('home')
       }
     })
   }
 
   handleChange = (name, val) => this.setState({ [name]: val })
 
+  setLogin = async () => {
+    try {
+      await AsyncStorage.setItem('loggedIn', "true", (error) => {
+        console.log('Error setting logged in status: ', error)
+      })
+    } catch(error) {
+      console.log('Error setting logged in status: ', error)
+    }
+  }
+
+  getLogin = async () => {
+    let value = -1;
+    try {
+      value = await AsyncStorage.getItem('loggedIn').then(response => {
+        console.log(response)
+      })
+    } catch(error) {
+      console.log(error)
+    }
+    return value;
+  }
+
   handleSubmit = () => {
     const { onFormSubmit } = this.props;
-
+    const component = this;
     return onFormSubmit(this.state)
-      .then(() => setTimeout(() => Actions.pop(), 1000))
+      .then(() => {
+        console.log('Logged in..')
+        this.setLogin();
+        Actions.replace('home')
+      })
       .catch(() => {});
   }
 
@@ -78,11 +101,11 @@ class Login extends React.Component {
 
           <Form>
             <Item stackedLabel>
-              <Label>Email</Label>
+              <Label>Phone Number</Label>
               <Input
                 autoCapitalize="none"
                 value={email}
-                keyboardType="email-address"
+                keyboardType="phone-pad"
                 disabled={loading}
                 onChangeText={v => this.handleChange('email', v)}
               />

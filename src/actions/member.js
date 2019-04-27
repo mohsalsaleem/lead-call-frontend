@@ -83,30 +83,11 @@ export function login(formData) {
     if (!email) return reject({ message: errorMessages.missingEmail });
     if (!password) return reject({ message: errorMessages.missingPassword });
 
-    // Go to Firebase
-    return Firebase.auth().setPersistence(Firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => Firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(async (res) => {
-          const userDetails = res && res.user ? res.user : null;
-
-          if (userDetails.uid) {
-            // Update last logged in data
-            FirebaseRef.child(`users/${userDetails.uid}`).update({
-              lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
-            });
-
-            // Send verification Email when email hasn't been verified
-            if (userDetails.emailVerified === false) {
-              Firebase.auth().currentUser.sendEmailVerification()
-                .catch(() => console.log('Verification email failed to send'));
-            }
-
-            // Get User Data from DB (different to auth user data)
-            getUserData(dispatch);
-          }
-
-          return resolve(dispatch({ type: 'USER_LOGIN', data: userDetails }));
-        }).catch(reject));
+    if(email === '9629278917' && password === 'helloworld') {
+      resolve()
+    } else {
+      reject({ message: 'Invalid credentials' })
+    }
   }).catch((err) => { throw err.message; });
 }
 
