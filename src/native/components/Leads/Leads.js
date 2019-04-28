@@ -114,12 +114,6 @@ const onSwipeLeft = (data) => {
   console.log({ data })
 }
 
-const onSwipeRight = (data) => {
-  const dataString = JSON.stringify(data);
-  AsyncStorage.setItem('lastDialledLead', dataString)
-  Linking.openURL(`tel:${data.phone}`)
-}
-
 class Leads extends Component {
 
   state = {
@@ -158,7 +152,8 @@ class Leads extends Component {
       let leadItem = {
         name: leadDatum.name,
         phone: leadDatum.mobile_number,
-        id: leadDatum.id
+        id: leadDatum.id,
+        called: false
       }
 
       const leadResponseKeys = Object.keys(leadDatum).filter((key) => {
@@ -223,6 +218,12 @@ class Leads extends Component {
   clearLastDialledLead = async() => {
     await AsyncStorage.removeItem('lastDialledLead')
   }
+
+  onSwipeRight = (data) => {
+    const dataString = JSON.stringify(data);
+    AsyncStorage.setItem('lastDialledLead', dataString)
+  }
+
 
   hideModal = () => {
 
@@ -313,10 +314,17 @@ class Leads extends Component {
             <DeckSwiper
             ref={ (c) => this._deckSwiper = c }
             dataSource={this.state.leads}
-            renderItem={ item => <Lead data={item} onSwipeLeft={() => this.swipeLeft()} /> }
-            onSwipeLeft={onSwipeLeft}
-            onSwipeRight={onSwipeRight}
-          /> : null
+            renderItem={ item => <Lead
+                                    data={item}
+                                    onSwipeLeft={(id) => {
+                                            this.swipeLeft()
+                                          }}/> }
+            onSwipeLeft={(data) => {
+                    onSwipeLeft(data)
+                  }}
+            onSwipeRight={ (data) => {
+                    this.onSwipeRight(data)
+                  }}/> : null
           }
         </View>
       </Container>

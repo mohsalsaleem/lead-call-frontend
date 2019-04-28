@@ -28,9 +28,6 @@ const QandA = ({ items }) => {
     })
 }
 
-const openDialer = (data) => {
-    Linking.openURL(`tel:${data.phone}`)
-}
 
 class Lead extends Component {
 
@@ -38,9 +35,15 @@ class Lead extends Component {
         console.log('asdasd');
     }
 
+    openDialer = (data) => {
+        console.log('Lead called for ')
+        console.log(data)
+        Linking.openURL(`tel:${data.phone}`)
+    }
+
     render() {
 
-        const { data, onSwipeLeft } = this.props
+        const { data, onSwipeLeft} = this.props
 
         return (
             <Content scrollEnabled={true}>
@@ -51,7 +54,7 @@ class Lead extends Component {
                                 <H1>{ data.name }</H1>
                             </Left>
                             <Right>
-                                <Button onPress={ () => { openDialer( data ) }} rounded>
+                                <Button onPress={ () => { this.openDialer( data ) }} rounded>
                                     <Icon name="md-call"/>
                                 </Button>
                             </Right>
@@ -67,7 +70,7 @@ class Lead extends Component {
                                 </Button>
                             </Left>
                             <Right>
-                                <Button onPress={ () => { openDialer( data ) }} rounded>
+                                <Button onPress={ () => { this.openDialer( data ) }} rounded>
                                     <Icon name="md-call"/>
                                 </Button>
                             </Right>
