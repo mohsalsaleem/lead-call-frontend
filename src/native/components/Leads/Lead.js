@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Linking } from 'react-native'
+import { StyleSheet, Linking, AsyncStorage } from 'react-native'
 import { Container, Content, H1, H3, Button, Text, Card, CardItem, Left, Right } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import { Icon } from 'native-base';
@@ -28,19 +28,22 @@ const QandA = ({ items }) => {
     })
 }
 
-const openDialer = (data) => {
-    Linking.openURL(`tel:${data.phone}`)
-}
 
 class Lead extends Component {
 
     componentDidMount() {
-        console.log('asdasd');
+        console.log('asdasd');  
+    }
+
+    openDialer = (data) => {
+        const dataString = JSON.stringify(data);
+        AsyncStorage.setItem('lastDialledLead', dataString)
+        Linking.openURL(`tel:${data.phone}`)
     }
 
     render() {
 
-        const { data, onSwipeLeft } = this.props
+        const { data, onSwipeLeft, onSwipeRight} = this.props
 
         return (
             <Content scrollEnabled={true}>
@@ -51,7 +54,7 @@ class Lead extends Component {
                                 <H1>{ data.name }</H1>
                             </Left>
                             <Right>
-                                <Button onPress={ () => { openDialer( data ) }} rounded>
+                                <Button onPress={ () => { this.openDialer( data ) }} rounded>
                                     <Icon name="md-call"/>
                                 </Button>
                             </Right>
@@ -60,18 +63,6 @@ class Lead extends Component {
                             <Text>Interest Score: { data.interestScore }</Text>
                         </CardItem>
                         <QandA items={ data.qanda } />
-                        <CardItem>
-                            <Left>
-                                <Button rounded onPress={ () => { onSwipeLeft() } }>
-                                    <Icon name="close"/>
-                                </Button>
-                            </Left>
-                            <Right>
-                                <Button onPress={ () => { openDialer( data ) }} rounded>
-                                    <Icon name="md-call"/>
-                                </Button>
-                            </Right>
-                        </CardItem>
                     </Card>
                 </ScrollView>
             </Content>

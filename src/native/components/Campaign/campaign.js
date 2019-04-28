@@ -144,8 +144,8 @@ class Campaigns extends Component {
 		<Container style={{margin: 10}}>
 			<View padder style={{marginTop: 10, marginBottom: 10}}>
 				<Header
-				title="Campaigns"
-				content="Here are your Campaigns"
+				title="Campaign List"
+				content="All your campaigns in one zone"
 				/>
 			</View>
 			<View style={{flex: 1, justifyContent: 'center'}}>

@@ -101,8 +101,8 @@ class Login extends React.Component {
         <Content>
           <View padder>
             <Header
-              title="Welcome back"
-              content="Please use your email and password to login."
+              title="Welcome to LeadCaller"
+              content="Please use your mobile number and password to login."
             />
             {error && <Messages message={error} />}
             {success && <Messages type="success" message={success} />}

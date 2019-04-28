@@ -32,102 +32,21 @@ const styles = StyleSheet.create({
   }
 });
 
-let leads = []
-for (let i = 0; i < 10; i++) {
-  lead = {
-    name: 'Vishwanath ' + i,
-    phone: '+9195001121' + i,
-    interestScore: 10.4,
-    qanda: [
-      {
-        question: 'Who is the President of India?',
-        answer: 'Modi Ji'
-      },
-      {
-        question: 'Who is the President of India?',
-        answer: 'Modi Ji'
-      },
-      {
-        question: 'Who is the President of India?',
-        answer: 'Modi Ji'
-      },
-      {
-        question: 'Who is the President of India?',
-        answer: 'Modi Ji'
-      }
-    ]
-  }
-  leads.push(lead)
-}
-
-// const serverData = {
-//   "campaign_data": 
-//   {
-//     "id": "e2438a1d-ff6e-4ab6-a380-bd320c91c095", 
-//     "question_3": "Email", 
-//     "question_4": "Have you danced before?", 
-//     "question_5": "Can you share your dancing experience?", 
-//     "question_6": null
-//   }, 
-//     "lead_values": 
-//     [
-//       {
-//         "id": "5f5959d1-cb6a-4b9c-bb7a-92a769673d27", 
-//         "name": "Keshav", 
-//         "mobile_number": "9876543210", 
-//         "response_3": "lol@gmail.com", 
-//         "response_4": "No", 
-//         "response_5": "It was amazing, I had a lot of fun", 
-//         "response_6": null
-//       }, 
-//       {
-//         "id": "87935772-d8e6-4e05-a7a9-26d33e87666d", 
-//         "name": "Keshav", 
-//         "mobile_number": "9876543210", 
-//         "response_3": "lol@gmail.com", 
-//         "response_4": "No", 
-//         "response_5": "It was amazing, I had a lot of fun", 
-//         "response_6": null
-//       }, 
-//       {
-//         "id": "9ead7b11-cb35-404d-a241-b191bfb4c4a4", 
-//         "name": "Keshav", 
-//         "mobile_number": "9876543210", 
-//         "response_3": "lol@gmail.com", 
-//         "response_4": "No", 
-//         "response_5": "It was amazing, I had a lot of fun", 
-//         "response_6": null
-//       }, 
-//       {
-//         "id": "dcee771a-a7cb-468a-810f-346dbd5a5469", 
-//         "name": "Keshav", 
-//         "mobile_number": "9876543210", 
-//         "response_3": "lol@gmail.com", 
-//         "response_4": "No", 
-//         "response_5": "It was amazing, I had a lot of fun", 
-//         "response_6": null
-//       }
-//     ]
-//   }
-
-const onSwipeLeft = (data) => {
-  console.log({ data })
-}
-
-const onSwipeRight = (data) => {
-  const dataString = JSON.stringify(data);
-  AsyncStorage.setItem('lastDialledLead', dataString)
-  Linking.openURL(`tel:${data.phone}`)
-}
-
 class Leads extends Component {
 
   state = {
     appState: AppState.currentState,
-    modalVisible: false,
+    
+    callModalVisible: false,
     modalContent: undefined,
-    leadFeedbackInterest: "not_selected",
+    leadFeedbackInterest: "not selected",
     leadFeedbackComment: "",
+    
+    escalateCallModalVisible: false,
+    escalateModalContent: undefined,
+    escalateLeadFeedbackInterest: "not selected",
+    escalateLeadFeedbackComment: "",
+
     questionMap: {},
     leads: []
   };
@@ -188,7 +107,8 @@ class Leads extends Component {
           let leadItem = {
             name: leadDatum.name,
             phone: leadDatum.mobile_number,
-            id: leadDatum.id
+            id: leadDatum.id,
+            called: false
           }
 
           const leadResponseKeys = Object.keys(leadDatum).filter((key) => {
@@ -236,7 +156,6 @@ class Leads extends Component {
       this.state.appState.match(/inactive|background/) &&
       nextAppState === 'active'
     ) {
-      this.showLastDialledLeadForm();
     }
     this.setState({appState: nextAppState});
   };
@@ -245,13 +164,21 @@ class Leads extends Component {
     this._deckSwiper._root.swipeLeft()
   }
 
-  showLastDialledLeadForm = async () => {
-    const value = await AsyncStorage.getItem('lastDialledLead')
-    const data = JSON.parse(value)
+  swipeRight = () => {
+    this._deckSwiper._root.swipeRight()
+  }
 
+  showLastDialledLeadForm = (data) => {
     this.setState({
-      modalVisible: data !== null,
+      callModalVisible: data !== null,
       modalContent: data
+    })
+  }
+
+  showEscalateLeadForm = (data) => {
+    this.setState({
+      escalateCallModalVisible: data !== null,
+      escalateModalContent: data
     })
   }
 
@@ -259,20 +186,54 @@ class Leads extends Component {
     await AsyncStorage.removeItem('lastDialledLead')
   }
 
-  hideModal = () => {
+  onSwipeRight = (data) => {
+    this.showLastDialledLeadForm(data);
+  }
+
+  onSwipeLeft = (data) => {
+    this.showEscalateLeadForm(data);
+  }
+
+  hideModal = (fromCall) => {
 
     const feedBack = {
-      user: this.state.modalContent,
-      interestLevel: this.state.leadFeedbackInterest,
-      comment: this.state.leadFeedbackComment
+      user: fromCall ? this.state.modalContent : this.state.escalateModalContent,
+      interestLevel: fromCall ? this.state.leadFeedbackInterest : this.state.escalateLeadFeedbackInterest,
+      comment: fromCall ? this.state.leadFeedbackComment : this.state.escalateLeadFeedbackComment
     }
 
-    console.log({feedBack})
+    const url = "http://10.1.122.181:5000" +
+    (fromCall ? "/campaign/lead/called" : "/campaign/lead/escalate")
 
-    this.clearLastDialledLead()
-    this.setState({
-      modalVisible: false
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        lead_id: feedBack.user.id,
+        remarks: feedBack.comment,
+        status: feedBack.interestLevel
+      })
     })
+    .then((res) => res.json)
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+
+    if(fromCall) {
+      this.setState({
+        callModalVisible: false
+      })
+    } else {
+      this.setState({
+        escalateCallModalVisible: false
+      })
+    }
   }
 
   leadFeedbackInterestChange = (value) => {
@@ -281,9 +242,21 @@ class Leads extends Component {
     })
   }
 
+  escalateLeadFeedbackInterestChange = (value) => {
+    this.setState({
+      escalateLeadFeedbackInterest: value
+    })
+  }
+
   onEnterComment = (text) => {
     this.setState({
       leadFeedbackComment: text
+    })
+  }
+
+  onEnterEscalateComment = (text) => {
+    this.setState({
+      escalateLeadFeedbackComment: text
     })
   }
 
@@ -294,12 +267,12 @@ class Leads extends Component {
     return (
       <Container style={styles.container}>
         <View>
-          {
-            this.state.modalContent ? 
-            <Modal
+        {
+          this.state.modalContent ? 
+          <Modal
             animationType="slide"
             transparent={false}
-            visible={this.state.modalVisible}
+            visible={this.state.callModalVisible}
             >
               <Container style={{ paddingTop: 100, paddingLeft: '10%', paddingRight: '10%' }}>
                   <Content padder>
@@ -316,10 +289,10 @@ class Leads extends Component {
                           selectedValue={this.state.leadFeedbackInterest}
                           onValueChange={this.leadFeedbackInterestChange.bind(this)}
                         > 
-                          <Picker.Item label="Select Lead's Interest Level" value="not_selected" />
-                          <Picker.Item label="Very Interested" value="very_interested" />
+                          <Picker.Item label="Select Lead's Interest Level" value="not selected" />
+                          <Picker.Item label="Very Interested" value="very interested" />
                           <Picker.Item label="Interested" value="interested" />
-                          <Picker.Item label="Not Interested" value="not_interested" />
+                          <Picker.Item label="Not Interested" value="not interested" />
                         </Picker>
                       </Item>
                       <Textarea 
@@ -334,7 +307,41 @@ class Leads extends Component {
                       <Button 
                         block 
                         onPress={ () => {
-                          this.hideModal()
+                          this.hideModal(true)
+                        }}
+                        >
+                          <Text>Done</Text>
+                      </Button>
+                  </Content>
+              </Container>
+            </Modal> : 
+            null
+        }
+            {
+              this.state.escalateModalContent ? 
+              <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.escalateCallModalVisible}
+            >
+              <Container style={{ paddingTop: 100, paddingLeft: '10%', paddingRight: '10%' }}>
+                  <Content padder>
+                      <Text style={{ marginBottom: 10 }}>Provide feedback about your recent call with</Text>
+                      <H1>{this.state.escalateModalContent.name}</H1>
+                      <Text style={{ marginBottom: 10 }}>{this.state.escalateModalContent.phone}</Text>
+                      <Textarea 
+                        rowSpan={5} 
+                        bordered 
+                        placeholder="Comments" 
+                        style={{ marginBottom: 10, padding: 10 }}
+                        onChangeText={(text) => {
+                          this.onEnterEscalateComment(text)
+                        }}
+                        />
+                      <Button 
+                        block 
+                        onPress={ () => {
+                          this.hideModal(false)
                         }}
                         >
                           <Text>Done</Text>
@@ -342,16 +349,29 @@ class Leads extends Component {
                   </Content>
               </Container>
             </Modal> : null
-          }
+            }
           {
             this.state.leads.length ? 
             <DeckSwiper
             ref={ (c) => this._deckSwiper = c }
             dataSource={this.state.leads}
-            renderItem={ item => <Lead data={item} onSwipeLeft={() => this.swipeLeft()} /> }
-            onSwipeLeft={onSwipeLeft}
-            onSwipeRight={onSwipeRight}
-          /> : null
+            renderItem={ 
+              item => <Lead
+                        data={item}
+                        onSwipeLeft={(id) => {
+                          this.swipeLeft()
+                        }}
+                        onSwipeRight={(id) => {
+                          this.swipeRight()
+                        }}
+                        />
+            }
+            onSwipeLeft={(data) => {
+                    this.onSwipeLeft(data)
+                  }}
+            onSwipeRight={ (data) => {
+                    this.onSwipeRight(data)
+                  }}/> : null
           }
         </View>
       </Container>
