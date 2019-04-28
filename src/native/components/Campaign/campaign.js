@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppState, Alert, Modal,TouchableHighlight } from 'react-native';
+import { AppState, Alert, Modal,TouchableHighlight, AsyncStorage } from 'react-native';
 import {
 	Container, Text, CardItem, Card, Right, Icon, View, H2, Fab, Button, Content
 } from 'native-base';
@@ -56,30 +56,51 @@ class Campaigns extends Component {
 	state = {
     appState: AppState.currentState,
     uploadModal: false,
-    campaigns: [{
-      id: 'e2438a1d-ff6e-4ab6-a380-bd320c91c095',
-      name: 'asdfghj'
-    }, {
-      id: 1234562,
-      name: 'asdfghj'
-    }, {
-      id: 1234563,
-      name: 'asdfghj'
-    }, {
-      id: 1234564,
-      name: 'asdfghj'
-    }, {
-      id: 1234565,
-      name: 'asdfghj'
-    }, {
-      id: 1234566,
-      name: 'asdfghj'
-	}]
+    campaigns: []
 	};
 	
 	constructor(props) {
 		super(props)
 		
+	}
+
+	// getLocalItem = async (key) => {
+	// 	const value = await AsyncStorage.getItem(key, (error, result) => {
+	// 		console.log('erer', error, result)
+	// 	})
+	// 	return value
+	// }
+
+	componentDidMount() {
+		const component = this
+		AsyncStorage.getItem('user_data', (error, result) => {
+			let data = JSON.parse(result)
+			const businessId = data["business_id"]
+			const userId = data["user_id"]
+			fetch('http://10.1.122.181:5000/campaign/details', {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					business_id: businessId,
+					user_id: userId,
+				})
+			})
+			.then((response) => {
+				console.log(response);
+				return response.json()
+			})
+			.then((res) => {
+				component.setState({
+					campaigns: res["campaign_list"]
+				})
+			})
+			.catch((error) => {
+				console.log(error)
+			})
+		})
 	}
   
   renderCampaigns = () => {

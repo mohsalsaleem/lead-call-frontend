@@ -39,6 +39,10 @@ class Login extends React.Component {
   }
 
   componentDidMount = () => {
+    AsyncStorage.removeItem('business_id')
+    AsyncStorage.removeItem('user_id')
+    AsyncStorage.removeItem('role')
+    AsyncStorage.removeItem('loggedIn')
     console.log('Verifying auth')
     AsyncStorage.getItem('loggedIn').then(response => {
       if (response === "true") {
@@ -75,7 +79,8 @@ class Login extends React.Component {
     const { onFormSubmit } = this.props;
     const component = this;
     return onFormSubmit(this.state)
-      .then(() => {
+      .then((data) => {
+        console.log(data);
         console.log('Logged in..')
         this.setLogin();
         Actions.replace('home')

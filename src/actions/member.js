@@ -102,6 +102,10 @@ export function getMemberData() {
   });
 }
 
+setLocalItem = async (key, value) => {
+  await AsyncStorage.setItem(key, value)
+}
+
 /**
   * Login to Firebase with Email/Password
   */
@@ -114,11 +118,32 @@ export function login(formData) {
     if (!email) return reject({ message: errorMessages.missingEmail });
     if (!password) return reject({ message: errorMessages.missingPassword });
 
-    if(email === '9629278917' && password === 'helloworld') {
-      resolve()
-    } else {
-      reject({ message: 'Invalid credentials' })
-    }
+    fetch('http://10.1.122.181:5000/user/login/', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mobile_number: email,
+        password: password,
+      }),
+    })
+    .then((response) => response.json())
+    .then((res) => {
+      console.log(res)
+      setLocalItem('user_data', JSON.stringify(res))
+      resolve(res)
+    })
+    .catch((error) => {
+      reject(error.message)
+    })
+
+    // if(email === '9629278917' && password === 'helloworld') {
+    //   resolve()
+    // } else {
+    //   reject({ message: 'Invalid credentials' })
+    // }
   }).catch((err) => { throw err.message; });
 }
 

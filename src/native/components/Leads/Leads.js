@@ -60,55 +60,55 @@ for (let i = 0; i < 10; i++) {
   leads.push(lead)
 }
 
-const serverData = {
-  "campaign_data": 
-  {
-    "id": "e2438a1d-ff6e-4ab6-a380-bd320c91c095", 
-    "question_3": "Email", 
-    "question_4": "Have you danced before?", 
-    "question_5": "Can you share your dancing experience?", 
-    "question_6": null
-  }, 
-    "lead_values": 
-    [
-      {
-        "id": "5f5959d1-cb6a-4b9c-bb7a-92a769673d27", 
-        "name": "Keshav", 
-        "mobile_number": "9876543210", 
-        "response_3": "lol@gmail.com", 
-        "response_4": "No", 
-        "response_5": "It was amazing, I had a lot of fun", 
-        "response_6": null
-      }, 
-      {
-        "id": "87935772-d8e6-4e05-a7a9-26d33e87666d", 
-        "name": "Keshav", 
-        "mobile_number": "9876543210", 
-        "response_3": "lol@gmail.com", 
-        "response_4": "No", 
-        "response_5": "It was amazing, I had a lot of fun", 
-        "response_6": null
-      }, 
-      {
-        "id": "9ead7b11-cb35-404d-a241-b191bfb4c4a4", 
-        "name": "Keshav", 
-        "mobile_number": "9876543210", 
-        "response_3": "lol@gmail.com", 
-        "response_4": "No", 
-        "response_5": "It was amazing, I had a lot of fun", 
-        "response_6": null
-      }, 
-      {
-        "id": "dcee771a-a7cb-468a-810f-346dbd5a5469", 
-        "name": "Keshav", 
-        "mobile_number": "9876543210", 
-        "response_3": "lol@gmail.com", 
-        "response_4": "No", 
-        "response_5": "It was amazing, I had a lot of fun", 
-        "response_6": null
-      }
-    ]
-  }
+// const serverData = {
+//   "campaign_data": 
+//   {
+//     "id": "e2438a1d-ff6e-4ab6-a380-bd320c91c095", 
+//     "question_3": "Email", 
+//     "question_4": "Have you danced before?", 
+//     "question_5": "Can you share your dancing experience?", 
+//     "question_6": null
+//   }, 
+//     "lead_values": 
+//     [
+//       {
+//         "id": "5f5959d1-cb6a-4b9c-bb7a-92a769673d27", 
+//         "name": "Keshav", 
+//         "mobile_number": "9876543210", 
+//         "response_3": "lol@gmail.com", 
+//         "response_4": "No", 
+//         "response_5": "It was amazing, I had a lot of fun", 
+//         "response_6": null
+//       }, 
+//       {
+//         "id": "87935772-d8e6-4e05-a7a9-26d33e87666d", 
+//         "name": "Keshav", 
+//         "mobile_number": "9876543210", 
+//         "response_3": "lol@gmail.com", 
+//         "response_4": "No", 
+//         "response_5": "It was amazing, I had a lot of fun", 
+//         "response_6": null
+//       }, 
+//       {
+//         "id": "9ead7b11-cb35-404d-a241-b191bfb4c4a4", 
+//         "name": "Keshav", 
+//         "mobile_number": "9876543210", 
+//         "response_3": "lol@gmail.com", 
+//         "response_4": "No", 
+//         "response_5": "It was amazing, I had a lot of fun", 
+//         "response_6": null
+//       }, 
+//       {
+//         "id": "dcee771a-a7cb-468a-810f-346dbd5a5469", 
+//         "name": "Keshav", 
+//         "mobile_number": "9876543210", 
+//         "response_3": "lol@gmail.com", 
+//         "response_4": "No", 
+//         "response_5": "It was amazing, I had a lot of fun", 
+//         "response_6": null
+//       }
+//     ]
+//   }
 
 const onSwipeLeft = (data) => {
   console.log({ data })
@@ -137,56 +137,91 @@ class Leads extends Component {
   }
 
   componentDidMount() {
+    
+    const campaign_id = this.props.campaign_id
+    const component = this
 
-    const campaignData = serverData["campaign_data"]
-    const campaignKeys = Object.keys(campaignData)
-    let questionMap = {}
-    campaignKeys.forEach((key) => {
-      if(key.indexOf("question") === -1 && campaignData[key] !== "Email") {
-        const questionKey = key.split("_")
-        const question = campaignData[key]
-        questionMap[questionKey] = question
-      }
-    })
+    AsyncStorage.getItem('user_data', (error, result) => {
+			let data = JSON.parse(result)
+      const userId = data["user_id"]
+      const role = data['role'].toLowerCase()
 
-    console.log({ campaignKeys })
+      const url = "http://10.1.122.181:5000" + 
+      (role === "supervisor" ? "/campaign/lead/escalated/details" : "/campaign/lead/details")
 
-    const leadData = serverData["lead_values"]
-    const leads = []
+			fetch(url, {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					campaign_id: campaign_id,
+					user_id: userId,
+				})
+			})
+			.then((response) => {
+				console.log(response);
+				return response.json()
+			})
+			.then((res) => {
 
-    leadData.forEach((leadDatum) => {
-      let leadItem = {
-        name: leadDatum.name,
-        phone: leadDatum.mobile_number,
-        id: leadDatum.id
-      }
+        console.log({res})
 
-      const leadResponseKeys = Object.keys(leadDatum).filter((key) => {
-        return key.indexOf("response") !== -1
-      })
+        const serverData = res
 
-      const qanda = leadResponseKeys.map((key) => {
-        const index = key.split("_")
-        const qandaObj = {
-          question: questionMap[index],
-          answer: leadDatum[key]
-        }
-        return qandaObj
-      })
+        const campaignData = serverData["campaign_data"]
+        const campaignKeys = Object.keys(campaignData)
+        let questionMap = {}
+        campaignKeys.forEach((key) => {
+          if(key.indexOf("question") !== -1 && campaignData[key] !== "Email") {
+            const questionKey = key.split("_")
+            const question = campaignData[key]
+            questionMap[questionKey[1]] = question
+          }
+        })
 
-      leadItem['qanda'] = qanda
-      leadItem['interestScore'] = Math.floor(Math.random()*(90 - 70 + 1) + 70)
+        const leadData = serverData["lead_values"]
+        const leads = []
 
-      leads.push(leadItem)
-    })
+        leadData.forEach((leadDatum) => {
+          let leadItem = {
+            name: leadDatum.name,
+            phone: leadDatum.mobile_number,
+            id: leadDatum.id
+          }
 
-    console.log(leads)
+          const leadResponseKeys = Object.keys(leadDatum).filter((key) => {
+            return key.indexOf("response") !== -1
+          })
 
-    this.setState(
-      { 
-        leads: leads 
-      }
-    )
+          const qanda = leadResponseKeys.map((key) => {
+            const index = key.split("_")[1]
+            const qandaObj = {
+              question: questionMap[index],
+              answer: leadDatum[key]
+            }
+            return qandaObj
+          })
+
+          leadItem['qanda'] = qanda
+          leadItem['interestScore'] = Math.floor(Math.random()*(90 - 70 + 1) + 70)
+
+          leads.push(leadItem)
+        })
+
+        component.setState(
+          { 
+            leads: leads 
+          }
+        )
+
+			})
+			.catch((error) => {
+				console.log(error)
+			})
+		})
+
 
     AppState.addEventListener('change', this._handleAppStateChange);
   }
